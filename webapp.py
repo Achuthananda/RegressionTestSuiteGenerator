@@ -7,10 +7,11 @@ from switchkey import getSwitchKey
 from config_parser import parseConfig,getHostnames
 from url_fetcher import getBasePageUrls,getTopUrls
 from atcinterface import atcCreator
+from flask import Flask, render_template, escape, request
 from request_qualifier import requestQualifier
 
 
-
+global requestObject
 requestObject = [
     [
         {
@@ -44,10 +45,35 @@ requestObject = [
     ]
 ]
 
+
+global cpcodeList
+global accountname
+global config
+global version
+global accountSwitchKey
+global hostNameList
+
+
+cpcodeList = []
+accountname = ''
+config = ''
+version = ''
+accountSwitchKey = ''
+hostNameList = []
+
+
+
 app = Flask(__name__)
 @app.route('/parseconfig')
 def parseconfig():
     #Read Query String Parameters
+    global accountname
+    global config
+    global version
+    global cpcodeList
+    global accountSwitchKey
+    global hostNameList
+
     accountname = request.args.get('account_name')
     config = request.args.get('config_name')
     version = request.args.get('config_version')
@@ -59,32 +85,44 @@ def parseconfig():
     hostNameList = getHostnames(accountSwitchKey,config,version)
 
     behaviorList = []
-    cpcodeList = []
+
     for behavior in behaviorParsedList:
         behaviorList.append(behavior["behavior"]["name"])
         if behavior["behavior"]["name"] == 'cpCode':
             cpcodeList.append(behavior["behavior"]['options']['value']['id'])
     behaviorList = list(dict.fromkeys(behaviorList))
 
-    #print(behaviorList)
-    #print(hostNameList)
-    #print(cpcodeList)
+    return render_template('parse_results.html', behaviorList=behaviorList, hostNameList=hostNameList, accountname=accountname, configname=config, version=version)
 
-    #requestObject = getTopUrls(cpcodeList,accountSwitchKey)
-    #requestObject = getTopUrls([951187],'AANA-1JHQYU')
-    templist = [hostNameList[1]]
-    requestObject = getBasePageUrls(templist)
-    print(requestObject)
+
+@app.route('/createtest', methods=['POST'])
+def createTest():
+    print("In createtest")
+    global config
+    global version
+    global accountSwitchKey
+    global cpcodeList
+    global requestObject
+    global hostNameList
+
+    urlsource = request.form['trigger-options']
+    if urlsource == 'topurls':
+        #requestObject = getTopUrls([951187],'AANA-1JHQYU')
+        #requestObject = getTopUrls(cpcodeList,accountSwitchKey)
+        requestObject = requestObject
+    elif urlsource == 'allbasepageurls':
+        requestObject = getBasePageUrls(hostNameList)
+    else:
+        templist = [urlsource]
+        requestObject = getBasePageUrls(templist)
 
     requestconditionObject = requestQualifier(config,version,requestObject)
     jsonfile = config+version+'.json'
     rmcommand = 'rm -rf ' + jsonfile
     os.system(rmcommand)
 
-    #print("The req object is :",requestconditionObject)
     atcCreator(accountSwitchKey,requestconditionObject,config)
-
-    return f'Hello, {escape(accountSwitchKey)}!'
+    return render_template('testcreation.html')
 
 
 if __name__ == '__main__':
