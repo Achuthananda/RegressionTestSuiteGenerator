@@ -95,19 +95,17 @@ def createTest():
     urlsource = request.form['trigger-options']
     if urlsource == 'topurls':
         #requestObject = getTopUrls([951187],'AANA-1JHQYU')
-        #requestObject = getTopUrls(cpcodeList,accountSwitchKey)
-        requestObject = requestObject
+        requestObject = getTopUrls(cpcodeList,accountSwitchKey)
     elif urlsource == 'allbasepageurls':
         requestObject = getBasePageUrls(hostNameList)
-        #requestObject = requestObject
     else:
         templist = [urlsource]
         requestObject = getBasePageUrls(templist)
 
-    print(requestObject)
-    requestObject = requestObject
     requestconditionObject = requestQualifier(config,version,requestObject)
-    print(requestconditionObject)
+    #print(requestconditionObject)
+
+
     jsonfile = config+version+'.json'
     rmcommand = 'rm -rf ' + jsonfile
     os.system(rmcommand)
