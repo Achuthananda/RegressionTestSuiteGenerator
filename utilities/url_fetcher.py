@@ -8,6 +8,10 @@ import os
 from datetime import datetime,timedelta
 from time import strftime
 import time
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+import re
+from urllib.parse import urljoin
 
 
 edgerc = EdgeRc('/Users/apadmana/.edgerc')
@@ -18,6 +22,42 @@ s.auth = EdgeGridAuth.from_edgerc(edgerc, section)
 
 
 headers = {'Content-Type': 'application/json'}
+def getBasePageUrl(url):
+    all_urls = []
+    html = urlopen(url)
+    soup = BeautifulSoup(html, 'html.parser')
+
+    for script in soup.find_all("script"):
+        if script.attrs.get("src"):
+            # if the tag has the attribute 'src'
+            script_url = urljoin(url, script.attrs.get("src"))
+            if url in script_url:
+                all_urls.append(script_url)
+
+    # get the CSS files
+    css_files = []
+    for css in soup.find_all("link"):
+        if css.attrs.get("href"):
+            # if the link tag has the 'href' attribute
+            css_url = urljoin(url, css.attrs.get("href"))
+            if url in css_url:
+                all_urls.append(css_url)
+
+
+    images_files = []
+    for img in soup.find_all("img"):
+        if img.attrs.get("src"):
+            # if the link tag has the 'href' attribute
+            img_url = urljoin(url, img.attrs.get("src"))
+            if url in img_url:
+                all_urls.append(img_url)
+
+
+    all_urls = set(all_urls)
+    #print(len(all_urls))
+    #print(all_urls)
+    return all_urls
+
 def getStartDay(interval):
     start_day = 0
     if interval == 1:
@@ -29,6 +69,7 @@ def getStartDay(interval):
 
     return start_day
 
+'''
 def getBasePageUrls(hostnameList):
     print("Fetching basepage urls..")
     urllist = []
@@ -51,6 +92,22 @@ def getBasePageUrls(hostnameList):
 
         rmcommand = 'rm -rf ' + file_name
         os.system(rmcommand)
+
+    requestObject = []
+    for url in urllist:
+        templist = []
+        requrl = {}
+        requrl["RequestUrl"] = url
+        templist.append(requrl)
+        requestObject.append(templist)
+    return requestObject
+'''
+def getBasePageUrls(hostnameList):
+    print("Fetching basepage urls..")
+    urllist = []
+    for hostname in hostnameList:
+        fullpath = 'http://'+hostname
+        urllist = getBasePageUrl(fullpath)
 
     requestObject = []
     for url in urllist:

@@ -12,35 +12,22 @@ from request_qualifier import requestQualifier
 
 
 global requestObject
+
+
 requestObject = [
     [
         {
-            "RequestUrl":"http://atc.edgesuite.net/js/classie.js"
+            "RequestUrl":"http://demohost2.edgesuite.net/akamaiflowershop/image/cache/WoodAnemone-120x120.jpg?dontcache=12"
         }
     ],
     [
         {
-            "RequestUrl":"http://atc.edgesuite.net/images/17.jpg"
+            "RequestUrl":"http://demohost1.edgesuite.net/css/style.css"
         }
     ],
     [
         {
-            "RequestUrl":"http://atc.edgesuite.net/images/17.jpg?qsptoken=1223"
-        }
-    ],
-    [
-        {
-            "RequestUrl":"http://atc.edgesuite.net/images/17.jpg?qsptoken3=hello"
-        }
-    ],
-    [
-        {
-            "RequestUrl":"http://atc.edgesuite.net/css/bootstrap.css"
-        }
-    ],
-    [
-        {
-            "RequestUrl":"http://atctechjam.edgesuite.net/js/classie.js"
+            "RequestUrl":"http://demohost1.edgesuite.net/css/style.css?extendcache=True"
         }
     ]
 ]
@@ -112,11 +99,15 @@ def createTest():
         requestObject = requestObject
     elif urlsource == 'allbasepageurls':
         requestObject = getBasePageUrls(hostNameList)
+        #requestObject = requestObject
     else:
         templist = [urlsource]
         requestObject = getBasePageUrls(templist)
 
+    print(requestObject)
+    requestObject = requestObject
     requestconditionObject = requestQualifier(config,version,requestObject)
+    print(requestconditionObject)
     jsonfile = config+version+'.json'
     rmcommand = 'rm -rf ' + jsonfile
     os.system(rmcommand)
