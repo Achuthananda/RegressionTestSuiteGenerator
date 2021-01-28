@@ -1,5 +1,11 @@
 from akamaiproperty import AkamaiProperty
 import json
+import os
+import getpass
+
+username = getpass.getuser()
+edgercpath = os.path.join("/Users",username,".edgerc")
+
 
 criteria_stack = []
 condition_json = []
@@ -23,7 +29,7 @@ def parseChildCriteriaBehaviors(rule_list,criteria_stack,level=0):
 
 def parseConfig(accountSwitchKey,configName,version):
     print("In Parse Config..")
-    myProperty = AkamaiProperty("/Users/apadmana/.edgerc",configName,accountSwitchKey)
+    myProperty = AkamaiProperty(edgercpath,configName,accountSwitchKey)
     ruleTree = myProperty.getRuleTree(int(version))
 
     for default_behaviors in ruleTree['rules']['behaviors']:

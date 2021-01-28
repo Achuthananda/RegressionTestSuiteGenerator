@@ -67,7 +67,7 @@ def parseconfig():
     version = version[1:]
 
     #Get Account Switch key of the Account
-    accountSwitchKey = getSwitchKey(accountname)
+    accountSwitchKey = getSwitchKey(accountname,config)
     behaviorParsedList = parseConfig(accountSwitchKey,config,version)
     hostNameList = getHostnames(accountSwitchKey,config,version)
 
@@ -102,8 +102,8 @@ def createTest():
         templist = [urlsource]
         requestObject = getBasePageUrls(templist)
 
+    requestObject = requestObject
     requestconditionObject = requestQualifier(config,version,requestObject)
-    #print(requestconditionObject)
 
 
     jsonfile = config+version+'.json'

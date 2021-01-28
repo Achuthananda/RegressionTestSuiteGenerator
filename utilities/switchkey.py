@@ -4,8 +4,14 @@ from urllib.parse import urljoin
 import json
 import re
 import sys
+from akamaiproperty import AkamaiProperty
+import os
+import getpass
 
-edgerc = EdgeRc('/Users/apadmana/.edgerc')
+username = getpass.getuser()
+edgercpath = os.path.join("/Users",username,".edgerc")
+
+edgerc = EdgeRc(edgercpath)
 section = 'default'
 baseurl = 'https://%s' % edgerc.get(section, 'host')
 s = requests.Session()
@@ -14,7 +20,7 @@ s.auth = EdgeGridAuth.from_edgerc(edgerc, section)
 headers = {'Content-Type': 'application/json'}
 
 
-def getSwitchKey(accountName):
+def getSwitchKey(accountName,config):
     print("In get SwitchKey")
     id= accountName
     # Request switchkey for the Account name
@@ -22,6 +28,9 @@ def getSwitchKey(accountName):
     # get the json in dictionary
     switchkey = json.loads(switchkey.text)
     # search for account switch key in the List and assign it to variable skey
-    skey = (switchkey[0]['accountSwitchKey'])
-    return skey
-    #print("SwitchKey: " + skey)
+    skeylist = [x['accountSwitchKey'] for x in switchkey]
+
+    for x in skeylist:
+        pr = AkamaiProperty(edgercpath,config,x)
+        if pr.getStagingVersion() != -1:
+            return x
